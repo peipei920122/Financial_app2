@@ -270,7 +270,7 @@ import pandas as pd
 import plotly.offline as pyoff
 
 
-##### K線圖, 移動平均線 MA
+##### K線圖, 移動平均線 MA ####
 with st.expander("K線圖, 移動平均線"):
     fig1 = make_subplots(specs=[[{"secondary_y": True}]])
     
@@ -291,7 +291,7 @@ with st.expander("K線圖, 移動平均線"):
     st.plotly_chart(fig1, use_container_width=True)
 
 
-##### K線圖, RSI
+##### K線圖, RSI ####
 with st.expander("K線圖, 長短 RSI"):
     fig2 = make_subplots(specs=[[{"secondary_y": True}]])
     #### include candlestick with rangeselector
@@ -310,7 +310,7 @@ with st.expander("K線圖, 長短 RSI"):
 
 
 
-# 計算布林通道
+# 計算布林通道 
 def calculate_bollinger_bands(df, window=20, std_dev=2):
     df['MA'] = df['Close'].rolling(window=window).mean()
     df['Upper_band'] = df['MA'] + std_dev * df['Close'].rolling(window=window).std()
@@ -323,7 +323,7 @@ KBar_df = calculate_bollinger_bands(KBar_df)
 # 找到最後一个NaN值的位置
 last_nan_index_BB = KBar_df['MA'][::-1].index[KBar_df['MA'][::-1].apply(pd.isna)][0]
 
-##### K線圖, 布林通道
+##### K線圖, 布林通道 ####
 with st.expander("K線圖, 布林通道"):
     fig3 = make_subplots(specs=[[{"secondary_y": True}]])
     #### include candlestick with rangeselector
@@ -344,39 +344,34 @@ with st.expander("K線圖, 布林通道"):
 
 
 
-##### 計算MACD指標 #####
-def calculate_macd(df, short_window=12, long_window=26, signal_window=9):
-    exp1 = df['Close'].ewm(span=short_window, adjust=False).mean()
-    exp2 = df['Close'].ewm(span=long_window, adjust=False).mean()
-    macd = exp1 - exp2
-    signal = macd.ewm(span=signal_window, adjust=False).mean()
-    df['MACD'] = macd
-    df['MACD_signal'] = signal
+# 計算唐奇安通道
+def calculate_donchian_channel(df, window=20):
+    df['Upper_band'] = df['High'].rolling(window=window).max()
+    df['Lower_band'] = df['Low'].rolling(window=window).min()
     return df
 
-##### 在 KBar_df 上應用MACD計算 #####
-KBar_df = calculate_macd(KBar_df)
+# 在 KBar_df 上應用唐奇安通道計算
+KBar_df = calculate_donchian_channel(KBar_df)
 
-##### 找到最後一个NaN值的位置 #####
-last_nan_index_MACD = KBar_df['MACD'][::-1].index[KBar_df['MACD'][::-1].apply(pd.isna)][0]
+# 找到最後一个NaN值的位置
+last_nan_index_DC = KBar_df['Upper_band'][::-1].index[KBar_df['Upper_band'][::-1].apply(pd.isna)][0]
 
-
-##### K線圖, MACD #####
-with st.expander("K線圖, MACD"):
-    fig4 = make_subplots(specs=[[{"secondary_y": True}]])
+##### K線圖, 唐奇安通道 ####
+with st.expander("K線圖, 唐奇安通道"):
+    fig_dc = make_subplots(specs=[[{"secondary_y": True}]])
     #### include candlestick with rangeselector
-    fig4.add_trace(go.Candlestick(x=KBar_df['Time'],
+    fig_dc.add_trace(go.Candlestick(x=KBar_df['Time'],
                     open=KBar_df['Open'], high=KBar_df['High'],
                     low=KBar_df['Low'], close=KBar_df['Close'], name='K線'),
                    secondary_y=True)   ## secondary_y=True 表示此圖形的y軸scale是在右邊而不是在左邊
     
-    fig4.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_MACD+1:], y=KBar_df['MACD'][last_nan_index_MACD+1:], mode='lines',line=dict(color='#9370db', width=2), name='MACD'), 
+    fig_dc.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_DC+1:], y=KBar_df['Upper_band'][last_nan_index_DC+1:], mode='lines',line=dict(color='#ff0000', width=2), name='唐奇安通道上軌'), 
                   secondary_y=False)
-    fig4.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_MACD+1:], y=KBar_df['MACD_signal'][last_nan_index_MACD+1:], mode='lines',line=dict(color='#bdb76b', width=2), name='MACD Signal'), 
+    fig_dc.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_DC+1:], y=KBar_df['Lower_band'][last_nan_index_DC+1:], mode='lines',line=dict(color='#00ff00', width=2), name='唐奇安通道下軌'), 
                   secondary_y=False)
     
-    fig4.layout.yaxis2.showgrid=True
-    st.plotly_chart(fig4, use_container_width=True)
+    fig_dc.layout.yaxis2.showgrid=True
+    st.plotly_chart(fig_dc, use_container_width=True)
 
 
 
