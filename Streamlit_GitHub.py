@@ -22,14 +22,10 @@ html_temp = """
 		"""
 stc.html(html_temp)
 
-df = pd.read_excel("2303.TW.xlsx")
-#df = pd.read_excel("kbars_2330_2022-07-01-2022-07-31.xlsx")
-
-# ## 讀取 excel 檔
-# df_original = pd.read_excel("kbars_2330_2022-01-01-2022-11-18.xlsx")
-
-# ## 保存为Pickle文件:
+# 讀取CSV檔案並保存為PKL檔案
+df = pd.read_csv("2303.TW.csv")
 df.to_pickle('2303.TW.pkl')
+
 
 
 
