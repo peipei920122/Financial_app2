@@ -344,6 +344,45 @@ with st.expander("K線圖, 布林通道"):
 
 
 
+# 計算 KDJ 指標
+def calculate_kdj(df, window=9):
+    low_list = df['Low'].rolling(window=window, min_periods=1).min()
+    high_list = df['High'].rolling(window=window, min_periods=1).max()
+
+    rsv = (df['Close'] - low_list) / (high_list - low_list) * 100
+    df['K'] = rsv.ewm(com=2).mean()
+    df['D'] = df['K'].ewm(com=2).mean()
+    df['J'] = 3 * df['K'] - 2 * df['D']
+    return df
+
+# 在 KBar_df 上應用 KDJ 指標計算
+KBar_df = calculate_kdj(KBar_df)
+
+# 找到最後一个NaN值的位置
+last_nan_index_KDJ = KBar_df['K'][::-1].index[KBar_df['K'][::-1].apply(pd.isna)][0]
+
+# 繪製 K 線圖和 KDJ 指標
+with st.expander("K線圖, KDJ 指標"):
+    fig_kdj = make_subplots(specs=[[{"secondary_y": True}]])
+    #### include candlestick with rangeselector
+    fig_kdj.add_trace(go.Candlestick(x=KBar_df['Time'],
+                    open=KBar_df['Open'], high=KBar_df['High'],
+                    low=KBar_df['Low'], close=KBar_df['Close'], name='K線'),
+                   secondary_y=True)   ## secondary_y=True 表示此圖形的y軸scale是在右邊而不是在左邊
+    
+    fig_kdj.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_KDJ+1:], y=KBar_df['K'][last_nan_index_KDJ+1:], mode='lines',line=dict(color='#ff1493', width=2), name='K'), 
+                  secondary_y=False)
+    fig_kdj.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_KDJ+1:], y=KBar_df['D'][last_nan_index_KDJ+1:], mode='lines',line=dict(color='#00bfff', width=2), name='D'), 
+                  secondary_y=False)
+    fig_kdj.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_KDJ+1:], y=KBar_df['J'][last_nan_index_KDJ+1:], mode='lines',line=dict(color='#ffa500', width=2), name='J'), 
+                  secondary_y=False)
+    
+    fig_kdj.layout.yaxis2.showgrid=True
+    st.plotly_chart(fig_kdj, use_container_width=True)
+
+
+
+
 # 計算唐奇安通道
 def calculate_donchian_channel(df, window=20):
     df['Upper_band'] = df['High'].rolling(window=window).max()
@@ -372,8 +411,6 @@ with st.expander("K線圖, 唐奇安通道"):
     
     fig_dc.layout.yaxis2.showgrid=True
     st.plotly_chart(fig_dc, use_container_width=True)
-
-
 
 
 
