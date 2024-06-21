@@ -1,13 +1,7 @@
 # 載入必要模組
 import os
-#os.chdir(r'C:\Users\user\Dropbox\系務\專題實作\112\金融看板\for students')
-#import haohaninfo
-#from order_Lo8 import Record
 import numpy as np
-#from talib.abstract import SMA,EMA, WMA, RSI, BBANDS, MACD
-#import sys
 import indicator_f_Lo2_short,datetime, indicator_forKBar_short
-#import datetime
 import pandas as pd
 import streamlit as st 
 import streamlit.components.v1 as stc 
@@ -28,27 +22,15 @@ df = pd.read_excel("2303.TW.xlsx")
 df.to_pickle('2303.TW.pkl')
 
 
-
-
 @st.cache_data(ttl=3600, show_spinner="正在加載資料...") 
 def load_data(url):
     df = pd.read_pickle(url)
     return df
 
 
-
-
-#df_original = load_data('kbars_2330_2022-01-01-2022-11-18.pkl')
-
 #df.columns  ## Index(['Unnamed: 0', 'time', 'open', 'low', 'high', 'close', 'volume','amount'], dtype='object')
 df = df.drop('Unnamed: 0',axis=1)
 #df.columns  ## Index(['time', 'open', 'low', 'high', 'close', 'volume', 'amount'], dtype='object')
-#df['time']
-#type(df['time'])  ## pandas.core.series.Series
-#df['time'][11]
-#df.head()
-#df.tail()
-#type(df['time'][0])
 
 
 ##### 選擇資料區間
@@ -57,7 +39,7 @@ start_date = st.text_input('選擇開始日期 (日期格式: 2020-01-01)', '202
 end_date = st.text_input('選擇結束日期 (日期格式: 2024-06-20)', '2024-06-20')
 start_date = datetime.datetime.strptime(start_date,'%Y-%m-%d')
 end_date = datetime.datetime.strptime(end_date,'%Y-%m-%d')
-# 使用条件筛选选择时间区间的数据
+# 使用條件篩選選擇時間區間的數據
 df = df[(df['time'] >= start_date) & (df['time'] <= end_date)]
 
 
@@ -71,24 +53,13 @@ KBar_dic = df.to_dict()
 #type(KBar_dic['open'].values())  ## dict_values
 KBar_open_list = list(KBar_dic['open'].values())
 KBar_dic['open']=np.array(KBar_open_list)
-#type(KBar_dic['open'])  ## numpy.ndarray
-#KBar_dic['open'].shape  ## (1596,)
-#KBar_dic['open'].size   ##  1596
 
 KBar_dic['product'] = np.repeat('tsmc', KBar_dic['open'].size)
-#KBar_dic['product'].size   ## 1596
-#KBar_dic['product'][0]      ## 'tsmc'
 
 KBar_time_list = list(KBar_dic['time'].values())
 KBar_time_list = [i.to_pydatetime() for i in KBar_time_list] ## Timestamp to datetime
 KBar_dic['time']=np.array(KBar_time_list)
 
-# KBar_time_list[0]        ## Timestamp('2022-07-01 09:01:00')
-# type(KBar_time_list[0])  ## pandas._libs.tslibs.timestamps.Timestamp
-#KBar_time_list[0].to_pydatetime() ## datetime.datetime(2022, 7, 1, 9, 1)
-#KBar_time_list[0].to_numpy()      ## numpy.datetime64('2022-07-01T09:01:00.000000000')
-#KBar_dic['time']=np.array(KBar_time_list)
-#KBar_dic['time'][80]   ## Timestamp('2022-09-01 23:02:00')
 
 KBar_low_list = list(KBar_dic['low'].values())
 KBar_dic['low']=np.array(KBar_low_list)
@@ -120,13 +91,9 @@ Date = start_date.strftime("%Y-%m-%d")
 st.subheader("設定一根 K 棒的時間長度(分鐘)")
 cycle_duration = st.number_input('輸入一根 K 棒的時間長度(單位:分鐘, 一日=1440分鐘)', value=(1440), key="KBar_duration")
 cycle_duration = int(cycle_duration)
-#cycle_duration = 1440   ## 可以改成你想要的 KBar 週期
-#KBar = indicator_f_Lo2.KBar(Date,'time',2)
+
 KBar = indicator_forKBar_short.KBar(Date,cycle_duration)    ## 設定cycle_duration可以改成你想要的 KBar 週期
 
-#KBar_dic['amount'].shape   ##(5585,)
-#KBar_dic['amount'].size    ##5585
-#KBar_dic['time'].size    ##5585
 
 for i in range(KBar_dic['time'].size):
     
@@ -178,19 +145,15 @@ KBar_dic['high'] =  KBar.TAKBar['high']
 KBar_dic['low'] =  KBar.TAKBar['low']
 KBar_dic['close'] =  KBar.TAKBar['close']
 KBar_dic['volume'] =  KBar.TAKBar['volume']
-# KBar_dic['time'].shape  ## (2814,)
-# KBar_dic['open'].shape  ## (2814,)
-# KBar_dic['high'].shape  ## (2814,)
-# KBar_dic['low'].shape  ## (2814,)
-# KBar_dic['close'].shape  ## (2814,)
-# KBar_dic['volume'].shape  ## (2814,)
-#KBar_dic['time'][536]
+
+
 ######  改變 KBar 時間長度 (以上)  ########
 
 
 
 ###### (4) 計算各種技術指標 ######
 ##### 將K線 Dictionary 轉換成 Dataframe
+
 KBar_df = pd.DataFrame(KBar_dic)
 
 
