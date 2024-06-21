@@ -50,13 +50,13 @@ def load_data(url):
 
 
 ##### 選擇資料區間
-st.subheader("選擇開始與結束的日期, 區間:2020-01-01 至 2024-06-20")
-start_date = st.text_input('選擇開始日期 (日期格式: 2020-01-01)', '2020-01-01')
-end_date = st.text_input('選擇結束日期 (日期格式: 2024-06-20)', '2024-06-20')
+st.subheader("選擇開始與結束的日期, 區間:2020/01/01 至 2024/06/20")
+start_date = st.text_input('選擇開始日期 (日期格式: 2020/01/01)', '2020/01/01')
+end_date = st.text_input('選擇結束日期 (日期格式: 2024/06/20)', '2024/06/20')
 
 # 將日期字符串轉換為 datetime 對象
-start_date = datetime.datetime.strptime(start_date, '%Y-%m-%d')
-end_date = datetime.datetime.strptime(end_date, '%Y-%m-%d')
+start_date = datetime.datetime.strptime(start_date, '%Y/%m/%d')
+end_date = datetime.datetime.strptime(end_date, '%Y/%m/%d')
 
 # 使用條件篩選選擇時間區間的資料
 df['Date'] = pd.to_datetime(df['Date'])  # 將日期欄位轉換為 datetime 對象（如果尚未轉換）
