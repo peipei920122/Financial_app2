@@ -22,7 +22,8 @@ def load_data(url):
     df = pd.read_csv(url)
     return df
 
-df_original = load_data('2303.csv')
+file_path = r'C:\Users\DING\Downloads\2303.csv'
+df_original = load_data(file_path)
 
 # 將日期轉換為datetime格式
 df_original['Date'] = pd.to_datetime(df_original['Date'])
