@@ -23,7 +23,7 @@ html_temp = """
 stc.html(html_temp)
 
 # 讀取CSV檔案並保存為PKL檔案
-df = pd.read_csv("2303.TW.csv")
+df = pd.read_excel("2303.TW.xlsx")
 df.to_pickle('2303.TW.pkl')
 
 
