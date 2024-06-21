@@ -365,9 +365,9 @@ with st.expander("K線圖, 唐奇安通道"):
                     low=KBar_df['Low'], close=KBar_df['Close'], name='K線'),
                    secondary_y=True)   ## secondary_y=True 表示此圖形的y軸scale是在右邊而不是在左邊
     
-    fig_dc.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_DC+1:], y=KBar_df['Upper_band'][last_nan_index_DC+1:], mode='lines',line=dict(color='#ff0000', width=2), name='唐奇安通道上軌'), 
+    fig_dc.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_DC+1:], y=KBar_df['Upper_band'][last_nan_index_DC+1:], mode='lines',line=dict(color='#f08080', width=2), name='唐奇安通道上軌'), 
                   secondary_y=False)
-    fig_dc.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_DC+1:], y=KBar_df['Lower_band'][last_nan_index_DC+1:], mode='lines',line=dict(color='#00ff00', width=2), name='唐奇安通道下軌'), 
+    fig_dc.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_DC+1:], y=KBar_df['Lower_band'][last_nan_index_DC+1:], mode='lines',line=dict(color='#4169e1', width=2), name='唐奇安通道下軌'), 
                   secondary_y=False)
     
     fig_dc.layout.yaxis2.showgrid=True
