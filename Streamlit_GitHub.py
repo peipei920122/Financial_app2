@@ -15,7 +15,7 @@ import streamlit.components.v1 as stc
 
 ###### (1) 開始設定 ######
 html_temp = """
-    <div style="background-color:#deb887;padding:10px;border-radius:10px">
+    <div style="background-color:#d2b48c;padding:10px;border-radius:10px">
     <h1 style="color:#696969;text-align:center;">聯電股票金融資料視覺化呈現 (金融看板) </h1>
     <h2 style="color:#696969;text-align:center;">UMC Financial App </h2>
     </div>
@@ -282,9 +282,9 @@ with st.expander("K線圖, 移動平均線"):
     
     #### include a go.Bar trace for volumes
     fig1.add_trace(go.Bar(x=KBar_df['Time'], y=KBar_df['Volume'], name='成交量', marker=dict(color='#696969')),secondary_y=False)  ## secondary_y=False 表示此圖形的y軸scale是在左邊而不是在右邊
-    fig1.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_MA+1:], y=KBar_df['MA_long'][last_nan_index_MA+1:], mode='lines',line=dict(color='#4169e1', width=2), name=f'{LongMAPeriod}-根 K棒 移動平均線'), 
+    fig1.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_MA+1:], y=KBar_df['MA_long'][last_nan_index_MA+1:], mode='lines',line=dict(color='#add8e6', width=2), name=f'{LongMAPeriod}-根 K棒 移動平均線'), 
                   secondary_y=True)
-    fig1.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_MA+1:], y=KBar_df['MA_short'][last_nan_index_MA+1:], mode='lines',line=dict(color='#db7093', width=2), name=f'{ShortMAPeriod}-根 K棒 移動平均線'), 
+    fig1.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_MA+1:], y=KBar_df['MA_short'][last_nan_index_MA+1:], mode='lines',line=dict(color='#ffb6c1', width=2), name=f'{ShortMAPeriod}-根 K棒 移動平均線'), 
                   secondary_y=True)
     
     fig1.layout.yaxis2.showgrid=True
@@ -300,7 +300,7 @@ with st.expander("K線圖, 長短 RSI"):
                     low=KBar_df['Low'], close=KBar_df['Close'], name='K線'),
                    secondary_y=True)   ## secondary_y=True 表示此圖形的y軸scale是在右邊而不是在左邊
     
-    fig2.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_RSI+1:], y=KBar_df['RSI_long'][last_nan_index_RSI+1:], mode='lines',line=dict(color='#8fbc8f', width=2), name=f'{LongRSIPeriod}-根 K棒 移動 RSI'), 
+    fig2.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_RSI+1:], y=KBar_df['RSI_long'][last_nan_index_RSI+1:], mode='lines',line=dict(color='#ffff00', width=2), name=f'{LongRSIPeriod}-根 K棒 移動 RSI'), 
                   secondary_y=False)
     fig2.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_RSI+1:], y=KBar_df['RSI_short'][last_nan_index_RSI+1:], mode='lines',line=dict(color='#c0c0c0', width=2), name=f'{ShortRSIPeriod}-根 K棒 移動 RSI'), 
                   secondary_y=False)
@@ -310,6 +310,37 @@ with st.expander("K線圖, 長短 RSI"):
 
 
 
+# 計算布林通道
+def calculate_bollinger_bands(df, window=20, std_dev=2):
+    df['MA'] = df['Close'].rolling(window=window).mean()
+    df['Upper_band'] = df['MA'] + std_dev * df['Close'].rolling(window=window).std()
+    df['Lower_band'] = df['MA'] - std_dev * df['Close'].rolling(window=window).std()
+    return df
+
+# 在 KBar_df 上應用布林通道計算
+KBar_df = calculate_bollinger_bands(KBar_df)
+
+# 找到最後一个NaN值的位置
+last_nan_index_BB = KBar_df['MA'][::-1].index[KBar_df['MA'][::-1].apply(pd.isna)][0]
+
+##### K線圖, 布林通道
+with st.expander("K線圖, 布林通道"):
+    fig3 = make_subplots(specs=[[{"secondary_y": True}]])
+    #### include candlestick with rangeselector
+    fig3.add_trace(go.Candlestick(x=KBar_df['Time'],
+                    open=KBar_df['Open'], high=KBar_df['High'],
+                    low=KBar_df['Low'], close=KBar_df['Close'], name='K線'),
+                   secondary_y=True)   ## secondary_y=True 表示此图形的y轴scale是在右边而不是在左边
+    
+    fig3.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_BB+1:], y=KBar_df['Upper_band'][last_nan_index_BB+1:], mode='lines',line=dict(color='#ff4500', width=2), name='布林通道上軌'), 
+                  secondary_y=False)
+    fig3.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_BB+1:], y=KBar_df['MA'][last_nan_index_BB+1:], mode='lines',line=dict(color='#00bfff', width=2), name='布林通道中軌'), 
+                  secondary_y=False)
+    fig3.add_trace(go.Scatter(x=KBar_df['Time'][last_nan_index_BB+1:], y=KBar_df['Lower_band'][last_nan_index_BB+1:], mode='lines',line=dict(color='#00ff00', width=2), name='布林通道下軌'), 
+                  secondary_y=False)
+    
+    fig3.layout.yaxis2.showgrid=True
+    st.plotly_chart(fig3, use_container_width=True)
 
 
 
