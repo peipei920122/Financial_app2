@@ -16,7 +16,7 @@ import streamlit.components.v1 as stc
 ###### (1) 開始設定 ######
 html_temp = """
     <div style="background-color:#d2b48c;padding:10px;border-radius:10px">
-    <h1 style="color:#696969;text-align:center;">聯電股票金融資料視覺化呈現 (金融看板) </h1>
+    <h1 style="color:#696969;text-align:center;">聯電股票視覺化呈現 </h1>
     <h2 style="color:#696969;text-align:center;">UMC Financial App </h2>
     </div>
 """
