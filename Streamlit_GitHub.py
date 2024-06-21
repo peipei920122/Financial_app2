@@ -27,6 +27,8 @@ stc.html(html_temp)
 df = pd.read_csv("2303.TW.csv")
 df.to_pickle('2303.TW.pkl')
 
+# 將日期字符串轉換為 datetime 對象
+df['Date'] = pd.to_datetime(df['Date'])
 
 # 定義用於從PKL檔案中讀取資料的函式
 @st.cache(ttl=3600, show_spinner="正在加載資料...") 
@@ -34,7 +36,16 @@ def load_data(url):
     df = pd.read_pickle(url)
     return df
 
+# 讀取PKL檔案
+df = load_data('2303.TW.pkl')
 
+# 將DataFrame轉換為字典KBar_dic
+KBar_dic = df.to_dict(orient='list')
+
+if 'Adj Close' in KBar_dic:
+    KBar_dic['Adj Close'] = np.array(KBar_dic['Adj Close'])  # 將'Adj Close'轉換為numpy array
+else:
+    st.error("Error: 'Adj Close' field does not exist in KBar_dic")
 
 #df_original = load_data('2303.TW.pkl')
 
