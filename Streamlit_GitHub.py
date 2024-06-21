@@ -27,25 +27,12 @@ stc.html(html_temp)
 df = pd.read_csv("2303.TW.csv")
 df.to_pickle('2303.TW.pkl')
 
-# 將日期字符串轉換為 datetime 對象
-df['Date'] = pd.to_datetime(df['Date'])
-
 # 定義用於從PKL檔案中讀取資料的函式
 @st.cache(ttl=3600, show_spinner="正在加載資料...") 
 def load_data(url):
     df = pd.read_pickle(url)
     return df
 
-# 讀取PKL檔案
-df = load_data('2303.TW.pkl')
-
-# 將DataFrame轉換為字典KBar_dic
-KBar_dic = df.to_dict(orient='list')
-
-if 'Adj Close' in KBar_dic:
-    KBar_dic['Adj Close'] = np.array(KBar_dic['Adj Close'])  # 將'Adj Close'轉換為numpy array
-else:
-    st.error("Error: 'Adj Close' field does not exist in KBar_dic")
 
 #df_original = load_data('2303.TW.pkl')
 
@@ -115,8 +102,8 @@ KBar_dic['Close']=np.array(KBar_Close_list)
 KBar_Volume_list = list(KBar_dic['Volume'].values())
 KBar_dic['Volume']=np.array(KBar_Volume_list)
 
-KBar_Adj_Close_array = KBar_dic['Adj Close'].values
-KBar_dic['Adj Close'] = KBar_Adj_Close_array
+#KBar_Adj_Close_array = KBar_dic['Adj Close'].values
+#KBar_dic['Adj Close'] = KBar_Adj_Close_array
 
 #KBar_amount_list = list(KBar_dic['amount'].values())
 #KBar_dic['amount']=np.array(KBar_amount_list)
@@ -154,7 +141,7 @@ for i in range(KBar_dic['Date'].size):
     Low_price= KBar_dic['Low'][i]
     High_price= KBar_dic['High'][i]
     Volume =  KBar_dic['Volume'][i]
-    Adj_close = KBar_dic['Adj Close'][i]
+    #Adj_close = KBar_dic['Adj Close'][i]
     #tag=KBar.TimeAdd(time,price,qty,prod)
     tag=KBar.AddPrice(Date, Open_price, Close_price, Low_price, High_price, Volume)
     
@@ -323,9 +310,6 @@ with st.expander("K線圖, 長短 RSI"):
     
     fig2.layout.yaxis2.showgrid=True
     st.plotly_chart(fig2, use_container_width=True)
-
-
-
 
 
 
